@@ -2,11 +2,11 @@
 package main
 
 import (
-	"time"
 	"bufio"
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 //!+broadcaster
@@ -65,24 +65,25 @@ func handleConn(conn net.Conn) {
 	messages <- who + " has arrived"
 	entering <- client
 
-	buffer := make(chan string) // buffering data reading from conn
+	buffer := make(chan string)
+	go func() {
+		for {
+			select {
+			case <-time.After(10 * time.Second):
+				conn.Close()
+				return
+			case raw := <-buffer:
+				messages <- who + ": " + raw
+			}
+		}
+
+	}()
+
 	input := bufio.NewScanner(conn)
 	for input.Scan() {
 		buffer <- input.Text()
 	}
 	// NOTE: ignoring potential errors from input.Err()
-
-	go func(){
-		for {
-			select {
-			case <- time.After(5 * time.Second):
-				conn.Close()
-				return
-			case raw := <- buffer:
-					messages <- who + ": " + raw
-			}
-		}
-	}()
 
 	leaving <- client
 	messages <- who + " has left"
