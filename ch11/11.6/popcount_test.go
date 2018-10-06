@@ -9,6 +9,7 @@ func BenchmarkShift(b *testing.B) {
 }
 
 func benchmarkLookup(b *testing.B, size int) {
+	b.N = size
 	for i := 0; i < b.N; i++ {
 		LookupCount(^uint64(111))
 	}
