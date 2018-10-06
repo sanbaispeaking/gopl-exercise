@@ -2,31 +2,38 @@ package popcount
 
 import "testing"
 
-func BenchmarkShift(b *testing.B) {
+func BenchmarkShift0(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		ShiftCount(^uint64(111))
+		ShiftCount(0)
 	}
 }
 
-func benchmarkLookup(b *testing.B, size int) {
-	b.N = size
+func BenchmarkLoopup0(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		LookupCount(^uint64(111))
+		LookupCount(0)
 	}
 }
 
-func BenchmarkLookup1000(b *testing.B) {
-	benchmarkLookup(b, 1000)
-}
-func BenchmarkLookup100000(b *testing.B) {
-	benchmarkLookup(b, 100000)
-}
-func BenchmarkLookup1000000(b *testing.B) {
-	benchmarkLookup(b, 1000000)
+func BenchmarkClear0(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ClearCount(0)
+	}
 }
 
-func BenchmarkClear(b *testing.B) {
+func BenchmarkShift64(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		ClearCount(^uint64(111))
+		ShiftCount(^uint64(0))
+	}
+}
+
+func BenchmarkLoopup64(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		LookupCount(^uint64(0))
+	}
+}
+
+func BenchmarkClear64(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ClearCount(^uint64(0))
 	}
 }

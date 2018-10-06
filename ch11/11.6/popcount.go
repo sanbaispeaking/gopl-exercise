@@ -21,7 +21,7 @@ func LookupCount(x uint64) int {
 		pc[byte(x>>(7*8))])
 }
 
-// ShiftCount returns the population count (number of set bits) of x by shift x towards LSB 1 bit at a time.
+// ShiftCount returns the population count of x by shifting x towards LSB 1 bit at a time.
 func ShiftCount(x uint64) int {
 	var count int
 	for ; x > 0; x = x >> 1 {
@@ -30,6 +30,7 @@ func ShiftCount(x uint64) int {
 	return count
 }
 
+// ClearCount returns the population count of x by clearing rightmost set bit of x.
 func ClearCount(x uint64) int {
 	var count int
 	for ; x > 0; x = x & (x - 1) {
