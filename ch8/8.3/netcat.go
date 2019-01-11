@@ -7,6 +7,7 @@
 package main
 
 import (
+	"bufio"
 	"io"
 	"log"
 	"net"
@@ -25,13 +26,23 @@ func main() {
 		log.Println("done")
 		done <- struct{}{} // signal the main goroutine
 	}()
-	mustCopy(conn, os.Stdin)
-	tcpconn := conn.(*net.TCPConn)
-	tcpconn.CloseWrite()
+	intercepter(conn)
 	<-done // wait for background goroutine to finish
 }
 
 //!-
+func intercepter(c net.Conn) {
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		if input.Text() == "close" {
+			break
+		}
+		io.WriteString(c, input.Text())
+	}
+	tcpconn := c.(*net.TCPConn)
+	tcpconn.CloseWrite()
+	log.Println("Writing direction closed")
+}
 
 func mustCopy(dst io.Writer, src io.Reader) {
 	if _, err := io.Copy(dst, src); err != nil {
