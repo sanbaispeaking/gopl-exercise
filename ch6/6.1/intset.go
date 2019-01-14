@@ -1,5 +1,5 @@
 // Package intset provides a set of integers based on a bit vector.
-package main
+package intset
 
 import (
 	"bytes"
@@ -63,7 +63,7 @@ func (s *IntSet) String() string {
 func (s *IntSet) Len() int {
 	var count int
 	for _, word := range s.words {
-		count += popcount(word)
+		count += PopCount(word)
 	}
 	return count
 }
@@ -82,7 +82,6 @@ func (s *IntSet) Remove(x int) {
 
 // Clear drop all elemtents
 func (s *IntSet) Clear() {
-	s.words = s.words[:0]
 }
 
 // Copy makes a deep copy of the set
@@ -103,8 +102,8 @@ func init() {
 	}
 }
 
-// popcount returns the population count (number of set bits) of x.
-func popcount(x uint64) int {
+// PopCount returns the population count (number of set bits) of x.
+func PopCount(x uint64) int {
 	return int(pc[byte(x>>(0*8))] +
 		pc[byte(x>>(1*8))] +
 		pc[byte(x>>(2*8))] +
@@ -116,22 +115,3 @@ func popcount(x uint64) int {
 }
 
 //!-
-
-func main() {
-	var set IntSet
-	set.Add(1)
-	set.Add(19999)
-	set.Add(128)
-	set.Add(0)
-	fmt.Println("Our set: ", &set)
-
-	set2 := set.Copy()
-	set2.Add(63)
-	fmt.Println("the newly created set: ", set2)
-	fmt.Println("the newly created set has 0: ", set2.Has(0))
-	fmt.Println("the original not affected: ", &set)
-
-	set.Clear()
-	fmt.Printf("the original: %v has %d eles, and 0 not belongs to it: %v\n", &set, set.Len(), set.Has(0))
-
-}
