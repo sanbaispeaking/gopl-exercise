@@ -17,8 +17,6 @@ func mirroredQuery() string {
 		select {
 		case fastest := <-responses:
 			close(done)
-			for range responses {
-			}
 			return fastest
 		default:
 		}
