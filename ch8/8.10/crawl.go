@@ -16,9 +16,9 @@ type URL struct {
 	gen int
 }
 
-func crawl(u URL, cancle <-chan struct{}) []URL {
+func crawl(u URL, cancel <-chan struct{}) []URL {
 	fmt.Printf("%v of depth %d\n", u.url, u.gen)
-	list, err := Extract(u.url, cancle)
+	list, err := Extract(u.url, cancel)
 	if err != nil {
 		log.Print(err)
 	}
@@ -32,7 +32,7 @@ func crawl(u URL, cancle <-chan struct{}) []URL {
 
 func parser() (depth int, targets []string) {
 	//Isolate `-depth`
-	depthPtr := flag.Int("depth", 0, "max hoops allowed from index, valule <=0 will be ignored")
+	depthPtr := flag.Int("depth", 0, "max hoops allowed from index, value <=0 will be ignored")
 
 	flag.Parse()
 	//Preserve other args as-is
@@ -48,7 +48,7 @@ func main() {
 
 	worklist := make(chan []URL)  // lists of URLs, may have duplicates
 	unseenLinks := make(chan URL) // de-duplicated URLs
-	done := make(chan struct{})   // for http request cancelation
+	done := make(chan struct{})   // for http request cancellation
 
 	// Add command-line arguments to worklist.
 	go func() {
@@ -61,7 +61,7 @@ func main() {
 		worklist <- urls
 	}()
 
-	// Accept usr input as canclelation sig
+	// Accept usr input as cancellation sig
 	go func() {
 		os.Stdin.Read(make([]byte, 1)) // read a single byte
 		close(done)
@@ -103,12 +103,12 @@ func main() {
 
 // Extract makes an HTTP GET request to the specified URL, parses
 // the response as HTML, and returns the links in the HTML document.
-func Extract(url string, cancle <-chan struct{}) ([]string, error) {
+func Extract(url string, cancel <-chan struct{}) ([]string, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Cancel = cancle
+	req.Cancel = cancel
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
