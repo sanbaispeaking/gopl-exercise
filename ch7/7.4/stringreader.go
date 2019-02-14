@@ -1,40 +1,38 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 
 	"golang.org/x/net/html"
 )
 
-type StrinReader string
-
-func (sr StrinReader) Read(p []byte) (n int, err error) {
-	nb := copy([]byte(sr), p)
-	if nb == len(sr) {
-		return nb, io.EOF
-	}
-	return nb, errors.New("read incomplete")
+type StrinReader struct {
+	s string
+	i int64
 }
 
-func NewReader(text string) io.Reader {
-	sr := StrinReader(text)
-	return &sr
+func (sr *StrinReader) Read(p []byte) (n int, err error) {
+	if sr.i >= int64(len(sr.s)) {
+		return 0, io.EOF
+	}
+
+	n = copy(p, sr.s[sr.i:])
+	sr.i += int64(n)
+	return
+}
+
+func NewReader(text string) *StrinReader {
+	return &StrinReader{text, 0}
 }
 
 //!+
 func main() {
-
-	page := NewReader(`
-	<html>
-<head><title>301 Moved Permanently</title></head>
-<body bgcolor="white">
-<center><h1>301 Moved Permanently</h1></center>
-<hr><center>nginx</center>
-</body>
-</html>`)
+	input, _ := ioutil.ReadAll(os.Stdin)
+	// fmt.Printf(string(input))
+	page := NewReader(string(input))
 
 	doc, err := html.Parse(page)
 	if err != nil {
