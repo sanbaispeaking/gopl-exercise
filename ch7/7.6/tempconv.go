@@ -51,19 +51,15 @@ func (f *fahrenheitFlag) Set(s string) error {
 	var value float64
 	fmt.Sscanf(s, "%f%s", &value, &unit) // no error check needed
 	switch unit {
-	case "C", "°C":
+	case "F", "°F":
 		f.Fahrenheit = Fahrenheit(value)
 		return nil
-	case "F", "°F":
+	case "C", "°C":
 		f.Fahrenheit = CToF(Celsius(value))
 		return nil
 	}
 	return fmt.Errorf("invalid temperature %q", s)
 }
-
-//!-celsiusFlag
-
-//!+CelsiusFlag
 
 // CelsiusFlag defines a Celsius flag with the specified name,
 // default value, and usage, and returns the address of the flag variable.
@@ -74,10 +70,9 @@ func CelsiusFlag(name string, value Celsius, usage string) *Celsius {
 	return &f.Celsius
 }
 
+// FahrenheitFlag defines a Fahrenheit flag with the specified name
 func FahrenheitFlag(name string, value Fahrenheit, usage string) *Fahrenheit {
 	f := fahrenheitFlag{value}
 	flag.CommandLine.Var(&f, name, usage)
 	return &f.Fahrenheit
 }
-
-//!-CelsiusFlag
